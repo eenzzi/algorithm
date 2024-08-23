@@ -1,93 +1,79 @@
-import java.io.*;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.StringTokenizer;
+
 public class Solution {
 	
-	static int N, M, min;
-	static char[][] flag;
-	static int result;
-	static char[] arr;
-	static char[] color = {'W', 'B', 'R'};
-
+	static char[][] arr;
+	static int N, M;
+	
 	public static void main(String[] args) throws IOException {
-		
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(System.out));
+		StringBuilder sb = new StringBuilder();
 		
 		int T = Integer.parseInt(br.readLine());
 		
 		for (int tc = 1; tc <= T; tc++) {
+			
+			sb.append("#").append(tc).append(" ");
 			StringTokenizer st = new StringTokenizer(br.readLine());
+			
 			N = Integer.parseInt(st.nextToken());
 			M = Integer.parseInt(st.nextToken());
 			
-			flag = new char[N][M];
-			result = 0;
-			min = Integer.MAX_VALUE;
+			arr = new char[N][M];
 			
 			for (int i = 0; i < N; i++) {
 				String read = br.readLine();
 				
 				for (int j = 0; j < M; j++) {
-					flag[i][j] = read.charAt(j);
+					arr[i][j] = read.charAt(j);
+				}
+			}
+			
+			int result = Integer.MAX_VALUE;
+			
+			for (int w = 1; w < N - 1; w++) { // white가 될 수 있는 경계
+				for (int b = w + 1; b < N; b++) { //blue가 될 수 있는 경계
+					int count = 0;
 					
-					if (i == 0 && flag[i][j] != 'W') {
-						result += 1;
-					} else if (i == N - 1 && flag[i][j] != 'R') {
-						result += 1;
+					// 흰색이 아니면 카운트 1 증가
+					for (int i = 0; i < w; i++) {
+						for (int j = 0; j < M; j++) {
+							if (arr[i][j] != 'W') {
+								count++;
+							}
+						}
 					}
+					
+					// 파란색 아니면 카운트 1증가
+					for (int i = w; i < b; i++) {
+						for (int j = 0; j < M; j++) {
+							if (arr[i][j] != 'B') {
+								count++;
+							}
+						}
+					}
+					
+					for (int i = b; i < N; i++) {
+						for (int j = 0; j < M; j++) {
+							if (arr[i][j] != 'R') {
+								count++;
+							}
+						}
+					}
+					
+					result = Math.min(count, result);
 				}
 			}
 			
-			arr = new char[N - 2];
-			
-			array(0, 0);
-			
-			wr.write("#" + tc + " " + (min + result) + "\n");
-			wr.flush();
-			
-		}
-
-	}
-	
-	private static void array(int len, int start) {
-		if (len == N - 2) {
-			int count = paint();
-			if (count < min) {
-				min = count;
-			}
-			return;
+			sb.append(result).append("\n");
 		}
 		
-		for (int i = start; i < 3; i++) {
-			arr[len] = color[i];
-			array(len + 1, i);
-		}
+		System.out.println(sb);
 	}
 
-	private static int paint() {
-		boolean blue = false;
-		int count = 0;
-		
-		for (int i = 0; i < N - 2; i++) {
-			if (arr[i] == 'B') {
-				blue = true; 
-				break;
-			}
-		}
-		
-		if (!blue) return Integer.MAX_VALUE;
-		
-		for (int i = 1; i < N - 1; i++) {
-			for (int j = 0; j < M; j++) {
-				if (flag[i][j] != arr[i - 1]) {
-					count++;
-				}
-			}
-		}
-		
-		return count;
-	}
-	
 }

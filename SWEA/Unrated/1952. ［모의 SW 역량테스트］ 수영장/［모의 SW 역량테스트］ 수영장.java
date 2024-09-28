@@ -1,17 +1,14 @@
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+
+import java.io.*;
 import java.util.StringTokenizer;
 
 public class Solution {
-	
-	static int A, B, C, D, min;
-	static int[] plan;
+
+    static int[] cost, plan, dp;
 
     public static void main(String[] args) throws IOException {
+
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(System.out));
         StringBuilder sb = new StringBuilder();
@@ -20,45 +17,37 @@ public class Solution {
 
         for (int tc = 1; tc <= T; tc++) {
             sb.append("#").append(tc).append(" ");
-            StringTokenizer st = new StringTokenizer(br.readLine());
 
-            A = Integer.parseInt(st.nextToken());
-            B = Integer.parseInt(st.nextToken());
-            C = Integer.parseInt(st.nextToken());
-            D = Integer.parseInt(st.nextToken());
-            plan = new int[12];
-            
-            st = new StringTokenizer(br.readLine());
-            for (int i = 0; i < 12; i++) {
-            	plan[i] = Integer.parseInt(st.nextToken());
+            cost = new int[4];
+            plan = new int[13];
+            dp = new int[13];
+
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            for (int i = 0; i < 4; i++) {
+                cost[i] = Integer.parseInt(st.nextToken());
             }
-            
-            min = Integer.MAX_VALUE;
-            dfs(0, 0);
-            
-            sb.append(min).append("\n");
+
+            st = new StringTokenizer(br.readLine());
+            for (int i = 1; i < 13; i++) {
+                plan[i] = Integer.parseInt(st.nextToken());
+//                dp[i] = 987654321;
+            }
+
+
+            for (int i = 1; i < 13; i++) {
+                dp[i] = dp[i - 1] + Math.min(plan[i] * cost[0], cost[1]);
+
+                //3개월 사용할 수 있는 경우 확인
+                if (i >= 3) {
+                    dp[i] = Math.min(dp[i], dp[i - 3] + cost[2]);
+                }
+            }
+
+            int result = Math.min(dp[12], cost[3]);
+
+            sb.append(result).append("\n");
         }
         wr.write(sb.toString());
         wr.flush();
-	}
-
-    private static void dfs(int month, int cost) {
-    	
-    	if (cost >= min) {
-			return;
-		}
-    	
-    	if (month > 11) {
-    		min = Math.min(cost, D);
-			return;
-		}
-		
-    	if (plan[month] == 0) {
-			dfs(month + 1, cost);
-		} else {
-			dfs(month + 1, cost + A * plan[month]);
-			dfs(month + 1, cost + B);
-			dfs(month + 3, cost + C);
-		}
-	}
+    }
 }

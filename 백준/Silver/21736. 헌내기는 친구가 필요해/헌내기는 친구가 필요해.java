@@ -55,6 +55,7 @@ public class Main {
 
 			if (graph.get(cx).get(cy) == 'P') {
 				result++;
+				visited[cx][cy] = true;
 			}
 
 			for (int i = 0; i < 4; i++) {
@@ -65,9 +66,10 @@ public class Main {
 					continue;
 				}
 
-				Character next = graph.get(cx).get(cy);
+				Character next = graph.get(nx).get(ny);
 
 				if (next == 'X') {
+					visited[nx][ny] = true;
 					continue;
 				}
 

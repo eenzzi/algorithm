@@ -6,7 +6,6 @@ class Solution {
         Map<Character, int[][]> mapPoint = new HashMap<>();
         char[][] map = new char[m][n];
 
-        // 보드 초기화 및 알파벳 좌표 수집
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 char c = board[i].charAt(j);
@@ -16,7 +15,7 @@ class Solution {
 
                 int[][] positions = mapPoint.computeIfAbsent(c, k -> new int[2][2]);
 
-                if (positions[0][0] == 0 && positions[0][1] == 0 && !(i == 0 && j == 0 && c == board[0].charAt(0))) {
+                if (positions[0][0] == 0 && positions[0][1] == 0) { // 채워진 적 없으면
                     positions[0][0] = i;
                     positions[0][1] = j;
                 } else {
@@ -74,7 +73,9 @@ class Solution {
 
     public boolean clearHorizontal(int x, int y1, int y2, char[][] map) {
         if (y1 > y2) {
-            int tmp = y1; y1 = y2; y2 = tmp;
+            int tmp = y1;
+            y1 = y2;
+            y2 = tmp;
         }
 
         for (int y = y1 + 1; y < y2; y++) {
@@ -85,7 +86,9 @@ class Solution {
 
     public boolean clearVertical(int y, int x1, int x2, char[][] map) {
         if (x1 > x2) {
-            int tmp = x1; x1 = x2; x2 = tmp;
+            int tmp = x1;
+            x1 = x2;
+            x2 = tmp;
         }
 
         for (int x = x1 + 1; x < x2; x++) {

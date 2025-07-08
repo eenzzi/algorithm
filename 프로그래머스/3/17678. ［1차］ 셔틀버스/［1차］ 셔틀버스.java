@@ -2,49 +2,38 @@ import java.util.*;
 
 class Solution {
     public String solution(int n, int t, int m, String[] timetable) {
-        int time = toMinutes("09:00"); // 540
         int peopleCnt = timetable.length;
-        
-        int[] table = new int[peopleCnt];
+        int[] times = new int[peopleCnt];
         
         for (int i = 0; i < peopleCnt; i++) {
-            table[i] = toMinutes(timetable[i]);
+            times[i] = toMinutes(timetable[i]);
         }
         
-        Arrays.sort(table);
+        Arrays.sort(times);
+        
         int answer = 0;
-
         for (int i = 0; i < n; i++) {
-            time = 540 + i * t; // 셔틀 도착 시간
-
-            int cnt = 0;
+            int time = 540 + i * t;
+            int count = 0;
             
             for (int j = 0; j < peopleCnt; j++) {
-                if (table[j] != 0 && canBoard(time, table[j])) {
-                    cnt++;
-                                    
-                    if (i == n - 1 && cnt >= m) { // 꽉 채워진 경우
-                        answer = table[j] - 1;
+                if (times[j] != 0 && time >= times[j]) {
+                    count++;
+                    
+                    if (i == n - 1 && count >= m) {
+                        answer = times[j] - 1;
                         break;
                     }
                     
-                    table[j] = 0;
+                    times[j] = 0;
                 }
-
                 
-                if (cnt >= m) break;
-                
-                if (i == n - 1) { // 마지막까지 안 채워진 경우
-                    answer = time;
-                }
+                if (count >= m) break;
+                if (i == n - 1) answer = time;
             }
         }
         
-        return toTime(answer);
-    }
-    
-    public boolean canBoard(int time, int arrive) {
-        return time >= arrive;
+        return toString(answer);
     }
     
     public int toMinutes(String time) {
@@ -52,9 +41,11 @@ class Solution {
         return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
     }
     
-    public String toTime(int minutes) {
-        int hour = minutes / 60;
-        int minute = minutes % 60;
-        return String.format("%02d:%02d", hour, minute);
+    public String toString(int minutes) {
+        int intHour = minutes / 60;
+        int intMin = minutes - intHour * 60;
+        String hour = ((intHour < 10) ? "0" : "") + String.valueOf(intHour);
+        String min = ((intMin < 10) ? "0" : "") + String.valueOf(intMin);
+        return hour + ":" + min;
     }
 }

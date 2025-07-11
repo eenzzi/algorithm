@@ -7,120 +7,109 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
-class Point {
-    int x;
-    int y;
-
-    public Point(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-}
-
 public class Main {
 
-    static int N, x, y, size, minX, minY, minDis;
-    static int[][] arr, distance;
-    static int[] dx = {1, 0, -1, 0};
-    static int[] dy = {0, 1, 0, -1};
+    static int N, minX, minY, minDist, answer;
+    static int[][] map, dist;
+    static int[] dx = {-1, 1, 0, 0};
+    static int[] dy = {0, 0, -1, 1};
+    static Shark baby;
+
+    static class Shark {
+        int x, y, size, eat;
+
+        public Shark(int x, int y) {
+            this.x = x;
+            this.y = y;
+            this.size = 2;
+            this.eat = 0;
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
         N = Integer.parseInt(br.readLine());
-        arr = new int[N][N];
-        size = 2;
+        map = new int[N][N];
+        answer = 0;
 
         for (int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
-
             for (int j = 0; j < N; j++) {
-                arr[i][j] = Integer.parseInt(st.nextToken());
-                if (arr[i][j] == 9) {
-                    x = i;
-                    y = j;
-                    arr[i][j] = 0;
+                int num = Integer.parseInt(st.nextToken());
+                map[i][j] = num;
+                if (num == 9) {
+                    baby = new Shark(i, j);
+                    map[i][j] = 0; // 상어가 있던 곳 0으로 갱신
                 }
             }
         }
 
-        int eat = 0; // 먹은 물고기 수
-        int count = 0; // 이동 횟수
         while (true) {
-            distance = new int[N][N];
+            dist = new int[N][N];
             minX = Integer.MAX_VALUE;
             minY = Integer.MAX_VALUE;
-            minDis = Integer.MAX_VALUE;
+            minDist = Integer.MAX_VALUE;
 
-            bfs(x, y);
+            bfs(baby.x, baby.y);
 
-            // 먹을 수 있는 물고기가 있었을 경우
             if (minX != Integer.MAX_VALUE && minY != Integer.MAX_VALUE) {
-                eat++; // 먹은 물고기 수
-                arr[minX][minY] = 0; // 먹은 곳은 0으로 갱신
-                x = minX;
-                y = minY; // 좌표 이동
-                count += distance[minX][minY];
+                baby.eat++;
+                map[minX][minY] = 0;
+                baby.x = minX;
+                baby.y = minY;
+                answer += dist[minX][minY];
 
-                if (eat == size) {
-                    size++;
-                    eat = 0;
+                if (baby.eat == baby.size) {
+                    baby.size++;
+                    baby.eat = 0;
                 }
-            } else { // 더이상 먹을 물고기가 없는 경우
-                break;
-            }
+            } else break;
         }
 
-        System.out.println(count);
+        System.out.println(answer);
 
     }
 
     private static void bfs(int x, int y) {
-        Queue<Point> q = new LinkedList<>();
-        q.add(new Point(x, y));
+        Queue<int[]> q = new LinkedList<>();
+        q.add(new int[]{x, y});
 
         while (!q.isEmpty()) {
-            Point curPos = q.poll();
+            int[] now = q.poll();
+            int num = map[now[0]][now[1]];
 
             for (int i = 0; i < 4; i++) {
-                int nx = curPos.x + dx[i];
-                int ny = curPos.y + dy[i];
-                //탐색할 수 있는 곳 & 방문한 적 없는 곳
-                if (nx < 0 || nx >= N || ny < 0 || ny >= N) {
-                    continue;
-                }
-                if (distance[nx][ny] != 0) {
-                    continue;
-                }
-                if (arr[nx][ny] > size) {
-                    continue;
-                }
+                int nx = now[0] + dx[i];
+                int ny = now[1] + dy[i];
 
-                distance[nx][ny] = distance[curPos.x][curPos.y] + 1;
+                if (nx < 0 || ny < 0 || nx >= N || ny >= N) continue;
+                if (dist[nx][ny] != 0) continue; // 이미 방문 했던 곳
 
-                //먹을 수 있는 경우
-                if (arr[nx][ny] != 0 && arr[nx][ny] < size) {
-                    if (minDis > distance[nx][ny]) { // 더 가까운 물고기가 있는 경우
-                        minDis = distance[nx][ny];
+                int next = map[nx][ny];
+                if (next > baby.size) continue;
+
+                dist[nx][ny] = dist[now[0]][now[1]] + 1;
+
+                // 먹을 수 있는 경우
+                if (next != 0 && next < baby.size) {
+                    if (minDist > dist[nx][ny]) { // 더 가까운 물고기가 있는 경우
+                        minDist = dist[nx][ny];
                         minX = nx;
                         minY = ny;
-                    } else if (minDis == distance[nx][ny]) { // 같은 거리인 물고기들이 있는 경우
-                        if (minX == nx) { //x도 같다면
-                            if (minY > ny) {
-                                minX = nx;
-                                minY = ny;
-                            }
-                        } else if (minX > nx) { // 더 위에 있다면
+                    } else if (minDist == dist[nx][ny]) { // 같은 거리일 경우
+                        if (minX == nx && minY > ny) { // x가 같고 y가 작다면
+                            minX = nx;
+                            minY = ny;
+                        } else if (minX > nx) { // x가 더 작다면
                             minX = nx;
                             minY = ny;
                         }
                     }
                 }
 
-                q.add(new Point(nx, ny));
-
+                q.offer(new int[]{nx, ny});
             }
         }
     }
-}
 
+}
